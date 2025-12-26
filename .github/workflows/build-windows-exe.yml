@@ -1,0 +1,52 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build exe (PyInstaller)
+        run: |
+          pyinstaller --noconsole --onefile --name immich-holiday-album-collector --collect-all tkcalendar --collect-all keyring immich_holiday_album_collector.py
+
+      - name: Package release zip
+        run: |
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Copy-Item dist\\immich-holiday-album-collector.exe release\\
+          Copy-Item app_config.example.json release\\
+          Copy-Item README.md release\\
+          if (Test-Path LICENSE) { Copy-Item LICENSE release\\ }
+          Compress-Archive -Path release\\* -DestinationPath immich-holiday-album-collector-windows.zip -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: immich-holiday-album-collector-windows
+          path: immich-holiday-album-collector-windows.zip
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: immich-holiday-album-collector-windows.zip
+          generate_release_notes: true

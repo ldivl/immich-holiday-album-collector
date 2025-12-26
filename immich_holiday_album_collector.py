@@ -7,6 +7,7 @@ from tkinter import ttk, messagebox
 import re
 from urllib.parse import urlsplit, urlunsplit
 import os
+import sys
 import queue
 import threading
 from tkcalendar import DateEntry
@@ -17,7 +18,13 @@ import keyring  # For secure API key storage
 # -------------------------------
 APP_NAME = "Immich Holiday Album Collector"
 APP_SLUG = "immich_holiday_album_collector"
-APP_CONFIG_FILE = "app_config.json"
+APP_DIR = (
+    os.path.dirname(sys.executable)
+    if getattr(sys, "frozen", False)
+    else os.path.dirname(os.path.abspath(__file__))
+)
+APP_CONFIG_FILE = os.path.join(APP_DIR, "app_config.json")
+PRESETS_FILE = os.path.join(APP_DIR, "config.json")
 API_BASE_URL = ""  # Loaded from APP_CONFIG_FILE at runtime
 SERVICE_NAME = "ImmichHolidayAlbumCollector"  # Keyring service name
 LEGACY_SERVICE_NAME = "HolidayAssetCollector"  # Backwards-compatible keyring service name
@@ -40,7 +47,7 @@ DEFAULT_HOLIDAYS = [
     "Christmas"
 ]
 
-LOG_FILE = f"{APP_SLUG}.log"
+LOG_FILE = os.path.join(APP_DIR, f"{APP_SLUG}.log")
 
 # Global variables for inter-thread communication
 stop_event = threading.Event()
@@ -670,12 +677,12 @@ def run_search(
 # -------------------------------
 # Preset Config Helpers
 # -------------------------------
-def save_config(config, filename="config.json"):
+def save_config(config, filename=PRESETS_FILE):
     """Save current configuration to a JSON file (no secrets)."""
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
 
-def load_config(filename="config.json"):
+def load_config(filename=PRESETS_FILE):
     """Load configuration from a JSON file."""
     try:
         with open(filename, "r", encoding="utf-8") as f:
@@ -861,6 +868,8 @@ def create_gui():
             set_status("Stored API key in keyring")
         except requests.RequestException as e:
             messagebox.showerror("Error", f"Failed to validate API Key: {str(e)}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Validated API Key, but failed to store it in your OS keyring: {e}")
 
     def delete_stored_api_key():
         try:
@@ -870,6 +879,8 @@ def create_gui():
             set_status("Stored API key deleted")
         except keyring.errors.PasswordDeleteError:
             messagebox.showinfo("Info", "No stored API Key to delete.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to delete stored API Key from your OS keyring: {e}")
 
     key_actions = ttk.Frame(connection_frame)
     key_actions.grid(row=2, column=2, sticky="e", pady=(8, 0))
@@ -1333,7 +1344,7 @@ def create_gui():
             "additional_filters": additional_filters_text.get("1.0", tk.END).strip(),
         }
         save_config(preset)
-        set_status("Saved preset to config.json")
+        set_status(f"Saved preset to {os.path.basename(PRESETS_FILE)}")
 
     def load_preset():
         preset, err = load_config()
@@ -1369,7 +1380,7 @@ def create_gui():
         additional_filters_text.delete("1.0", tk.END)
         additional_filters_text.insert(tk.END, str(preset.get("additional_filters", "")).strip())
 
-        set_status("Loaded preset from config.json")
+        set_status(f"Loaded preset from {os.path.basename(PRESETS_FILE)}")
 
     preset_buttons = ttk.Frame(action_bar)
     preset_buttons.grid(row=0, column=0, sticky="w")

@@ -1,5 +1,7 @@
 # Immich Holiday Album Collector
 
+![Immich Holiday Album Collector GUI](docs/gui.png)
+
 A small Tkinter app that searches your Immich library for assets taken around holidays (and/or a custom date like a birthday) and automatically adds them to albums.
 
 ## Features
@@ -21,27 +23,39 @@ A small Tkinter app that searches your Immich library for assets taken around ho
   - `asset.read`, `album.read`, `album.create`, `album.write` (for searching and adding to albums)
   - `person.read` (only if you use People filters/picker)
 
-## Setup
+## Download (Windows)
+
+1. Download the latest `immich-holiday-album-collector-windows.zip` from GitHub Releases (contains the `.exe` and `app_config.example.json`).
+2. In the same folder as the `.exe`, copy `app_config.example.json` to `app_config.json` and set `api_base_url` (e.g. `https://immich.example.com/api`).
+3. Double-click the `.exe`.
+
+## Run From Source
+
+### macOS / Linux
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install requests tkcalendar keyring
+pip install -r requirements.txt
+cp app_config.example.json app_config.json
+python3 immich_holiday_album_collector.py
 ```
 
-Create `app_config.json` from the example:
+If you hit Tk-related crashes on macOS, use a Python distribution that ships Tk 8.6 (e.g. Anaconda or python.org).
 
-```bash
-cp app_config.example.json app_config.json
+### Windows (Python)
+
+Install Python 3 from python.org (includes Tk), then:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+Copy-Item app_config.example.json app_config.json
+py immich_holiday_album_collector.py
 ```
 
 Set `api_base_url` to your Immich API endpoint (e.g. `https://immich.example.com/api`). If you provide only the host, the app will assume `/api`.
-
-## Run
-
-```bash
-python3 immich_holiday_album_collector.py
-```
 
 ## Advanced Search Notes
 
@@ -54,4 +68,3 @@ python3 immich_holiday_album_collector.py
 
 - API keys are stored in your OS keyring (optional). Never commit keys/tokens.
 - Logs can include request payloads and asset IDs; avoid sharing them. This repo’s `.gitignore` excludes common sensitive/local files (`app_config.json`, logs, presets, `.env`, certs, etc.).
-

@@ -1,0 +1,3 @@
+requests>=2.31.0
+tkcalendar>=1.6.1
+keyring>=24.3.0

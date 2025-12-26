@@ -9,9 +9,10 @@
 ## Build, Test, and Development Commands
 
 - Create a venv: `python3 -m venv .venv && source .venv/bin/activate`
-- Install dependencies: `pip install requests tkcalendar keyring`
+- Install dependencies: `pip install -r requirements.txt`
 - Run locally: `python3 immich_holiday_album_collector.py`
 - Quick sanity check: `python3 -m py_compile immich_holiday_album_collector.py`
+- Build Windows `.exe` (CI): push a `v*` tag to trigger `.github/workflows/build-windows-exe.yml`
 
 ## Coding Style & Naming Conventions
 
