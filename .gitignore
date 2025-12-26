@@ -1,0 +1,40 @@
+# Local configuration (may contain instance URL / personal presets)
+app_config.json
+config.json
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+
+# Logs
+immich_holiday_album_collector.log
+*.log
+*.out
+nohup.out
+*.pid
+
+# Local databases / caches (may contain personal data)
+*.sqlite
+*.sqlite3
+*.db
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# macOS
+.DS_Store
